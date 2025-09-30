@@ -16,7 +16,7 @@ The goal is to provide an interactive dashboard that integrates data visualizati
 ## 🗂 Repository Structure
 
 ```
-36120-25sp-group6-at3-streamlit/
+36120-25SP-group6-AT3-streamlit/
 │
 ├── app/
 │   └── main.py              # Main Streamlit application code
@@ -36,8 +36,8 @@ The goal is to provide an interactive dashboard that integrates data visualizati
 ## How to Setup
 1. Clone this repository to your local machine:
    ```bash
-   git clone https://github.com/Nelkit/36120-25sp-group6-AT3-streamlit
-   cd 36120-25sp-group6-AT3-streamlit
+   git clone https://github.com/Nelkit/36120-25SP-group6-AT3-streamlit
+   cd 36120-25SP-group6-AT3-streamlit
    ```
 2. Ensure you have Python 3.11 or later installed. You can use Python 3.11.4 with pyenv:
    ```bash
