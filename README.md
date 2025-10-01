@@ -33,7 +33,7 @@ The goal is to provide an interactive dashboard that integrates data visualizati
 └── github.txt               # Link to the Github repository for the app
 ```
 
-## How to Setup
+## 🧑‍💻 How to Setup
 1. Clone this repository to your local machine:
    ```bash
    git clone https://github.com/Nelkit/36120-25SP-group6-AT3-streamlit
@@ -63,9 +63,40 @@ The goal is to provide an interactive dashboard that integrates data visualizati
     poetry env activate
     ```
 
-## How to Run the Program
+## 🚀 How to Run the Program
 Run the following command in your terminal:
 ```bash
 streamlit run app/main.py
 ```
-This will launch the Streamlit app in your default web browser. Follow the on-screen instructions to perform currency conversions.
+This will launch the Streamlit app in your default web browser.
+
+## 📂 Branching Strategy
+
+To keep our work organized, each student will create their own branch to work on their assigned cryptocurrency.
+
+### Rules
+
+1. **Main branch (`main`)**  
+   - Contains the stable version of the app.  
+   - Do not develop directly on this branch.
+2. **Individual branches**  
+   - Each student creates a branch from `main` using this format:  
+     ```
+     <name>-<cryptocurrency>
+     ```
+     Example: `nelkit-ethereum`
+
+### Workflow
+1. Create your branch from main:
+
+    ```
+    git checkout main
+    git pull origin main
+    git checkout -b nelkit-ethereum
+    ```
+2. Work on your assigned section (students/student_<student_id>.py).
+3. Commit changes frequently with clear messages.
+4. Push your branch and open a Pull Request (PR) to main.
+5. Team member reviews and approves the PR before merging.
+
+> Tip: Keep your branch up to date with main before merging to avoid conflicts.
