@@ -5,6 +5,14 @@ import requests
 import plotly.graph_objects as go
 from datetime import datetime, timedelta, timezone
 
+import time
+API_URL = "https://bitcoin-high-prediction-latest.onrender.com/predict/BTC"
+HEALTH_URL = "https://bitcoin-high-prediction-latest.onrender.com/health/"
+
+import requests
+
+API_URL = "https://bitcoin-high-prediction-latest.onrender.com/predict/BTC"
+
 # --- utils ---
 def _format_usd(x: float | int) -> str:
     return f"${x:,.0f}"
@@ -40,6 +48,25 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     # quick helper metrics
     df["ret_7d"] = df["close"].pct_change(7)
     return df
+
+@st.cache_data(ttl=120)  # cache for 2 minutes to avoid repeated calls
+def fetch_prediction_with_retry(max_retries: int = 2):
+    # warm the Render app (handles cold starts)
+    try:
+        requests.get(HEALTH_URL, timeout=5)
+    except Exception:
+        pass
+
+    last_err = None
+    for i in range(max_retries + 1):
+        try:
+            r = requests.get(API_URL, timeout=20)  # longer timeout for Render cold start
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            last_err = e
+            time.sleep(1 + i)  # small backoff and try again
+    raise last_err
 
 def render_tab():
     import streamlit as st
@@ -82,7 +109,7 @@ def render_tab():
     st.header("Student 25418551 – My Analysis")
 
     # ===== Section 1. Current vs Predicted HIGH =====
-    st.subheader("💹 Bitcoin Daily HIGH Overview")
+    st.subheader("Bitcoin Daily HIGH Overview")
 
     try:
         # Fetch the most recent candle (1-day interval)
@@ -113,8 +140,16 @@ def render_tab():
     # Right: predicted HIGH placeholder
     with c2:
         st.markdown("**🧠 Next-day HIGH Prediction**")
-        st.metric("Predicted HIGH (BTC-USD)", _format_usd(99999))
-        st.caption("Placeholder – will be replaced by live FastAPI prediction.")
+
+        try:
+            data = fetch_prediction_with_retry()
+            predicted = data.get("predicted_high_usd_next_day") or data.get("predicted_high_price")
+            source = data.get("data_source", "n/a")
+            st.metric("Predicted HIGH for tomorrow (BTC-USD)", _format_usd(predicted))
+            st.caption(f"Data source: {source} • cached up to 2 min")
+        except Exception as e:
+            st.metric("Predicted HIGH for tomorrow (BTC-USD)", "N/A")
+            st.caption(f"⚠️ API unavailable: {e}  \nTip: open {API_URL} in a browser once to wake it.")
 
     st.divider()
 
@@ -215,7 +250,7 @@ def render_tab():
 
 # ===== Section 4. Extra Visuals (independent period) =====
         st.divider()
-        st.subheader("📊 Extra Analytics")
+        st.subheader("Extra Analytics")
         viz_days = st.radio("Select period for analytics (days)", [30, 60, 90, 180, 365],
                             horizontal=True, index=2)
 
@@ -227,7 +262,7 @@ def render_tab():
 
         # ---------- A) Daily % Change ----------
         st.divider()
-        st.subheader("📉 Daily % Change")
+        st.subheader("📊 Daily % Change")
         ret_df = df_viz[["time", "ret"]].dropna()
         if ret_df.empty:
             st.info("Not enough data for returns. Increase the analytics period.")
@@ -292,7 +327,7 @@ def render_tab():
             """)
 
         # ---------- C) Cumulative Return from period start ----------
-        st.subheader("📈 Cumulative Return (from period start)")
+        st.subheader("📉Cumulative Return (from period start)")
         cum_df = df_viz[["time", "ret"]].dropna()
         if cum_df.empty:
             st.info("Not enough data for cumulative return. Increase the analytics period.")
@@ -340,7 +375,7 @@ def render_tab():
             """)
 
         # ---------- D) Rolling Max Drawdown ----------
-        st.subheader("📉 Rolling Max Drawdown (%)")
+        st.subheader("📈 Rolling Max Drawdown (%)")
 
         dd_df = df_viz[["time", "close"]].dropna().copy()
         if dd_df.empty:
@@ -371,7 +406,7 @@ def render_tab():
 
 
             # ---------- E) Risk-Adjusted Return (30D Sharpe proxy) ----------
-        st.subheader("🟢 Risk-Adjusted Return (30-Day Sharpe Proxy)")
+        st.subheader("🟣 Risk-Adjusted Return (30-Day Sharpe Proxy)")
 
         sh_df = df_viz[["time", "ret"]].dropna().copy()
         if sh_df.empty:
@@ -389,7 +424,7 @@ def render_tab():
                 fig_sh = go.Figure(go.Scatter(
                     x=sh_df["time"], y=sh_df["sharpe30"],
                     mode="lines", name="Sharpe(30D)",
-                    line=dict(color="seagreen")
+                    line=dict(color="mediumorchid")
                 ))
                 fig_sh.add_hline(y=0, line_width=1, line_dash="dot", line_color="gray")
                 fig_sh.update_layout(
