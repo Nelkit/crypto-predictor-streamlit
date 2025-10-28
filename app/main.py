@@ -26,10 +26,10 @@ Select a tab below to see each student’s contribution.
 # --- TABS ---
 tabs = st.tabs([
     "Overview",
-    "Student 25609227",
-    "Student 25418551",
-    "Student 3",#Brayam
-    "Student 4"#Mario
+    "Ethereum",
+    "Bitcoin",
+    "XRP",#Brayam
+    "Solana"#Mario
 ])
 
 # --- OVERVIEW TAB ---
