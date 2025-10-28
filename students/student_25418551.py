@@ -21,7 +21,7 @@ def _format_usd(x: float | int) -> str:
 def fetch_ohlc(days: int = 90) -> pd.DataFrame:
     """Fetch daily OHLC for BTC/USD from Kraken (UTC candles)."""
     url = "https://api.kraken.com/0/public/OHLC"
-    params = {"pair": "BTCUSD", "interval": 1440}  # 1-day candles
+    params = {"pair": "BTCUSD", "interval": 1440}  # 1-day  candles
     r = requests.get(url, params=params, timeout=10)
     r.raise_for_status()
     raw = r.json()["result"]["XXBTZUSD"]  # BTC/USD key
