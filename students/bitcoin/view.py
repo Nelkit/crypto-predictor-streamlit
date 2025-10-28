@@ -139,7 +139,7 @@ def render_tab():
         st.markdown(
     "<h4 style='color:#002fa7; font-weight:600;'>Current HIGH (BTC-USD)</h4>",
     unsafe_allow_html=True
-    ) 
+    )
         if current_high:
             st.metric(label="", value=_format_usd(current_high))
             st.caption(f"As of {last_time} (UTC)")

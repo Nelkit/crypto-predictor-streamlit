@@ -5,7 +5,10 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import streamlit as st
-from students import student_25609227, student_25418551
+from students.ethereum.view import render_tab as render_eth_tab
+from students.bitcoin.view import render_tab as render_bitcoin_tab
+from students.xrp.view import render_tab as render_xrp_tab
+from students.solana.view import render_tab as render_solana_tab
 
 st.set_page_config(
     page_title="Crypto Prediction Dashboard - Group 6",
@@ -26,10 +29,10 @@ Select a tab below to see each student’s contribution.
 # --- TABS ---
 tabs = st.tabs([
     "Overview",
-    "Student 25609227",
-    "Student 25418551",
-    "Student 3",#Brayam
-    "Student 4"#Mario
+    "Ethereum",
+    "Bitcoin",
+    "XRP",#Brayam
+    "Solana"#Mario
 ])
 
 # --- OVERVIEW TAB ---
@@ -44,15 +47,15 @@ with tabs[0]:
 
 # --- STUDENT TABS ---
 with tabs[1]:
-    student_25609227.render_tab()
+    render_eth_tab()
 
 with tabs[2]:
-    student_25418551.render_tab()
+    render_bitcoin_tab()
 
 with tabs[3]:
     #Brayam
-    st.info("Placeholder for another student.")
+    render_xrp_tab()
 
 with tabs[4]:
     #Mario
-    st.info("Placeholder for another student.")
+    render_solana_tab()
