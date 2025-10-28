@@ -6,14 +6,15 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta, timezone
 
 import time
-API_URL = "https://bitcoin-high-prediction-latest.onrender.com/predict/BTC"
-HEALTH_URL = "https://bitcoin-high-prediction-latest.onrender.com/health/"
+API_URL = "https://bitcoin-high-prediction.onrender.com/predict/BTC"
+HEALTH_URL = "https://bitcoin-high-prediction.onrender.com/health/"
 
 import requests
 
-API_URL = "https://bitcoin-high-prediction-latest.onrender.com/predict/BTC"
+API_URL = "https://bitcoin-high-prediction.onrender.com/predict/BTC"
 
 # --- utils ---
+
 def _format_usd(x: float | int) -> str:
     return f"${x:,.0f}"
 
@@ -106,10 +107,16 @@ def render_tab():
         return df
 
     # ===== HEADER =====
-    st.header("Student 25418551 – My Analysis")
+    st.markdown(
+        """
+        <hr style="border: none; border-top: 2px solid #ccc; margin-top: 0.5em; margin-bottom: 0.5em;">
+        <h2 style='text-align:center; color:#333333;'>Bitcoin Analysis</h2>
+        <hr style="border: none; border-top: 2px solid #ccc; margin-top: 0.5em; margin-bottom: 1em;">
+        """,
+        unsafe_allow_html=True
+    )
 
     # ===== Section 1. Current vs Predicted HIGH =====
-    st.subheader("Bitcoin Daily HIGH Overview")
 
     try:
         # Fetch the most recent candle (1-day interval)
@@ -125,11 +132,14 @@ def render_tab():
         current_high = None
         st.warning(f"Could not fetch current data: {e}")
 
-    c1, c2 = st.columns(2)
+    _, c1, c2, _ = st.columns([1, 2, 2, 1])
 
     # Left: current HIGH from Kraken
     with c1:
-        st.markdown("**Current HIGH (BTC-USD)**")
+        st.markdown(
+    "<h4 style='color:#002fa7; font-weight:600;'>Current HIGH (BTC-USD)</h4>",
+    unsafe_allow_html=True
+    ) 
         if current_high:
             st.metric(label="", value=_format_usd(current_high))
             st.caption(f"As of {last_time} (UTC)")
@@ -139,16 +149,19 @@ def render_tab():
 
     # Right: predicted HIGH placeholder
     with c2:
-        st.markdown("**🧠 Next-day HIGH Prediction**")
+        st.markdown(
+    "<h4 style='color:#FF4B4B; font-weight:600;'>Next-day HIGH (BTC-USD) Prediction</h4>",
+    unsafe_allow_html=True
+    )
 
         try:
             data = fetch_prediction_with_retry()
             predicted = data.get("predicted_high_usd_next_day") or data.get("predicted_high_price")
             source = data.get("data_source", "n/a")
-            st.metric("Predicted HIGH for tomorrow (BTC-USD)", _format_usd(predicted))
+            st.metric("Predicted HIGH for tomorrow", _format_usd(predicted))
             st.caption(f"Data source: {source} • cached up to 2 min")
         except Exception as e:
-            st.metric("Predicted HIGH for tomorrow (BTC-USD)", "N/A")
+            st.metric("Predicted HIGH for tomorrow", "N/A")
             st.caption(f"⚠️ API unavailable: {e}  \nTip: open {API_URL} in a browser once to wake it.")
 
     st.divider()
