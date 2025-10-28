@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import streamlit as st
-from students import student_25609227
+from students import student_25609227, student_25418551
 
 st.set_page_config(
     page_title="Crypto Prediction Dashboard - Group 6",
@@ -27,9 +27,9 @@ Select a tab below to see each student’s contribution.
 tabs = st.tabs([
     "Overview",
     "Student 25609227",
-    "Student 2",
-    "Student 3",
-    "Student 4"
+    "Student 25418551",
+    "Student 3",#Brayam
+    "Student 4"#Mario
 ])
 
 # --- OVERVIEW TAB ---
@@ -47,10 +47,12 @@ with tabs[1]:
     student_25609227.render_tab()
 
 with tabs[2]:
-    st.info("Placeholder for another student.")
+    student_25418551.render_tab()
 
 with tabs[3]:
+    #Brayam
     st.info("Placeholder for another student.")
 
 with tabs[4]:
+    #Mario
     st.info("Placeholder for another student.")
