@@ -141,10 +141,10 @@ def render_tab():
     unsafe_allow_html=True
     )
         if current_high:
-            st.metric(label="", value=_format_usd(current_high))
+            st.metric(" ", value=_format_usd(current_high))
             st.caption(f"As of {last_time} (UTC)")
         else:
-            st.metric(label="", value="N/A")
+            st.metric(" ", value="N/A")
             st.caption("Data unavailable")
 
     # Right: predicted HIGH placeholder
