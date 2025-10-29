@@ -1215,21 +1215,6 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
-name = "vega-datasets"
-version = "0.9.0"
-description = "A Python package for offline access to Vega datasets"
-optional = false
-python-versions = ">=3.5"
-groups = ["main"]
-files = [
-    {file = "vega_datasets-0.9.0-py3-none-any.whl", hash = "sha256:3d7c63917be6ca9b154b565f4779a31fedce57b01b5b9d99d8a34a7608062a1d"},
-    {file = "vega_datasets-0.9.0.tar.gz", hash = "sha256:9dbe9834208e8ec32ab44970df315de9102861e4cda13d8e143aab7a80d93fc0"},
-]
-
-[package.dependencies]
-pandas = "*"
-
-[[package]]
 name = "watchdog"
 version = "6.0.0"
 description = "Filesystem events monitoring"
@@ -1276,4 +1261,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "==3.11.4"
-content-hash = "b21cb94e786c4cf18e3c93a3c53f12a60da3dec62303844a3c13ac6a518c3678"
+content-hash = "894cab35685ad22fabecdca8ad542d11c69457719ad13fe7b1b645d22191e0c7"
