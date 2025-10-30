@@ -4,14 +4,15 @@ import numpy as np
 import requests
 import plotly.graph_objects as go
 from datetime import datetime, timedelta, timezone
-
-import time
-API_URL = "https://bitcoin-high-prediction.onrender.com/predict/BTC"
-HEALTH_URL = "https://bitcoin-high-prediction.onrender.com/health/"
-
 import requests
+import time
+# --- API endpoints (one source of truth) ---
+API_BASE = "https://bitcoin-high-prediction.onrender.com"
+PREDICT_URL = f"{API_BASE}/predict/BTC"
+HEALTH_URL  = f"{API_BASE}/health/"
 
-API_URL = "https://bitcoin-high-prediction.onrender.com/predict/BTC"
+
+
 
 # --- utils ---
 
@@ -52,7 +53,7 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
 
 @st.cache_data(ttl=120)  # cache for 2 minutes to avoid repeated calls
 def fetch_prediction_with_retry(max_retries: int = 2):
-    # warm the Render app (handles cold starts)
+    # warm the API (Render cold start)
     try:
         requests.get(HEALTH_URL, timeout=5)
     except Exception:
@@ -61,12 +62,19 @@ def fetch_prediction_with_retry(max_retries: int = 2):
     last_err = None
     for i in range(max_retries + 1):
         try:
-            r = requests.get(API_URL, timeout=20)  # longer timeout for Render cold start
+            r = requests.get(PREDICT_URL, timeout=20)
+            if r.status_code == 404:
+                # try trailing slash fallback
+                alt = PREDICT_URL.rstrip("/") + "/"
+                r = requests.get(alt, timeout=10)
             r.raise_for_status()
             return r.json()
         except Exception as e:
             last_err = e
-            time.sleep(1 + i)  # small backoff and try again
+            time.sleep(1 + i)
+
+    # don’t keep a cached failure around
+    st.cache_data.clear()
     raise last_err
 
 def render_tab():
@@ -156,13 +164,12 @@ def render_tab():
 
         try:
             data = fetch_prediction_with_retry()
-            predicted = data.get("predicted_high_usd_next_day") or data.get("predicted_high_price")
-            source = data.get("data_source", "n/a")
+            predicted = data.get("next_day_high_predicted")
             st.metric("Predicted HIGH for tomorrow", _format_usd(predicted))
-            st.caption(f"Data source: {source} • cached up to 2 min")
+            st.caption("Prediction updated from API (cache ≤ 120s)")
         except Exception as e:
             st.metric("Predicted HIGH for tomorrow", "N/A")
-            st.caption(f"⚠️ API unavailable: {e}  \nTip: open {API_URL} in a browser once to wake it.")
+            st.caption(f"⚠️ API unavailable: {e}\nURL tried: {PREDICT_URL}")
 
     st.divider()
 
