@@ -10,10 +10,10 @@ class CryptoForecastApi:
         self.session = requests.Session()
         self.base_url = PREDICTOR_API_URL
 
-    @st.cache_data
-    def fetch_price_prediction(_self, coin_id: str = "ETH") -> dict:
+    @st.cache_data(ttl=600)
+    def fetch_price_prediction(_self, _coin_id: str = "ETH") -> dict:
         """Fetch price prediction for a specific cryptocurrency."""
-        endpoint = f"{_self.base_url}/predict/{coin_id}"
+        endpoint = f"{_self.base_url}/predict/{_coin_id}"
 
         try:
             response = _self.session.get(endpoint, timeout=120)
@@ -22,7 +22,7 @@ class CryptoForecastApi:
             return data
 
         except requests.exceptions.HTTPError:
-            st.error(f"HTTP {response.status_code} error while fetching price prediction for {coin_id}.")
+            st.error(f"HTTP {response.status_code} error while fetching price prediction for {_coin_id}.")
             return {}
 
         except requests.exceptions.Timeout:
@@ -30,11 +30,11 @@ class CryptoForecastApi:
             return {}
 
         except requests.exceptions.RequestException:
-            st.error(f"Unexpected network error while fetching price prediction for {coin_id}.")
+            st.error(f"Unexpected network error while fetching price prediction for {_coin_id}.")
             return {}
 
         except Exception as e:
-            st.error(f"Unexpected error fetching price prediction for {coin_id}: {e}")
+            st.error(f"Unexpected error fetching price prediction for {_coin_id}: {e}")
             return {}
 
 class CoinGeckoApi:
@@ -44,7 +44,6 @@ class CoinGeckoApi:
         self.session = requests.Session()
         self.base_url = COINGECKO_API_URL
 
-    # --- Helper para manejo de errores uniforme ---
     @staticmethod
     def handle_api_error(response, coin_id, context):
         """Handle common API errors with user-friendly messages."""
@@ -58,79 +57,38 @@ class CoinGeckoApi:
         else:
             st.error(f"Unexpected network error while fetching {context} for {coin_id}.")
 
-    # --- Fetch merged daily data ---
-    @st.cache_data
-    def fetch_merged_daily_data(_self, _coin_id: str, _vs_currency: str = "usd",
-                                days: int = 30, _interval: str = "daily") -> pd.DataFrame:
+    # --- Fetch fetch ohlc metrics ---
+    @st.cache_data(ttl=300)
+    def fetch_ohlc_data(_self, _coin_id: str, _vs_currency: str = "usd", days: int = 30) -> pd.DataFrame:
         """
-        Fetch daily market data for a specific coin using the /market_chart endpoint.
-        Derives OHLC from price data, and merges with volume and market cap.
+        Fetch OHLC data directly from the CoinGecko /coins/{id}/ohlc endpoint.
+
+        Args:
+            _coin_id (str): CoinGecko ID (e.g., 'bitcoin', 'ethereum', 'solana', 'ripple')
+            _vs_currency (str): The target currency to compare against (default: 'usd')
+            days (int): Number of past days to fetch (valid options: 1, 7, 14, 30, 90, 180, 365, 'max')
+
+        Returns:
+            pd.DataFrame: A DataFrame containing timestamp, open, high, low, and close columns.
         """
-        endpoint = f"{_self.base_url}/coins/{_coin_id}/market_chart"
-        params = {"vs_currency": _vs_currency, "days": days, "interval": _interval}
-
-        try:
-            response = _self.session.get(endpoint, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-
-            # === Parse datasets ===
-            prices = pd.DataFrame(data["prices"], columns=["timestamp", "price"])
-            market_caps = pd.DataFrame(data["market_caps"], columns=["timestamp", "market_cap"])
-            volumes = pd.DataFrame(data["total_volumes"], columns=["timestamp", "volume"])
-
-            # === Convert timestamps ===
-            prices["timestamp"] = pd.to_datetime(prices["timestamp"], unit="ms")
-            market_caps["timestamp"] = pd.to_datetime(market_caps["timestamp"], unit="ms")
-            volumes["timestamp"] = pd.to_datetime(volumes["timestamp"], unit="ms")
-
-            # === Derive OHLC ===
-            prices["date"] = prices["timestamp"].dt.date
-            ohlc = (
-                prices.groupby("date")["price"]
-                .agg(open="first", high="max", low="min", close="last")
-                .reset_index()
-            )
-            ohlc["timestamp"] = pd.to_datetime(ohlc["date"])
-            ohlc.drop(columns="date", inplace=True)
-
-            # === Merge datasets ===
-            df = ohlc.merge(market_caps, on="timestamp", how="inner")
-            df = df.merge(volumes, on="timestamp", how="inner")
-            df = df.sort_values("timestamp").reset_index(drop=True)
-
-            return df
-
-        except requests.exceptions.HTTPError:
-            _self.handle_api_error(response, _coin_id, "merged daily data")
-            return pd.DataFrame()
-
-        except requests.exceptions.Timeout:
-            st.error("⏰ Request timed out. Please check your connection or try again later.")
-            return pd.DataFrame()
-
-        except requests.exceptions.RequestException:
-            _self.handle_api_error(None, _coin_id, "merged daily data")
-            return pd.DataFrame()
-
-        except Exception as e:
-            st.error(f"Unexpected error fetching merged daily data for {_coin_id}: {e}")
-            return pd.DataFrame()
-
-    # --- Fetch OHLC data ---
-    @st.cache_data
-    def fetch_ohlc_data(_self, _coin_id: str, _vs_currency: str = "usd", days=30):
-        """Fetch OHLC data directly from /coins/{id}/ohlc endpoint."""
         endpoint = f"{_self.base_url}/coins/{_coin_id}/ohlc"
         params = {"vs_currency": _vs_currency, "days": days}
+        print("================= Fetching data from CoinGecko API - ohlc =================")
 
         try:
             response = _self.session.get(endpoint, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
+
+            # Validate and convert data
+            if not isinstance(data, list) or len(data) == 0:
+                st.warning(f"No OHLC data returned for {_coin_id}.")
+                return pd.DataFrame()
 
             df = pd.DataFrame(data, columns=["timestamp", "open", "high", "low", "close"])
             df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+            df = df.sort_values("timestamp").reset_index(drop=True)
+
             return df
 
         except requests.exceptions.HTTPError:
@@ -149,10 +107,18 @@ class CoinGeckoApi:
             st.error(f"Unexpected error fetching OHLC data for {_coin_id}: {e}")
             return pd.DataFrame()
 
+
     # --- Fetch coin info ---
     @st.cache_data
     def fetch_coin_info(_self, _coin_id: str) -> dict:
-        """Fetch detailed information about a specific cryptocurrency."""
+        """
+        Fetch detailed coin information from the CoinGecko /coins/{id} endpoint.
+        Args:
+            _coin_id (str): CoinGecko ID (e.g., 'bitcoin', '
+        ethereum', 'solana', 'ripple')
+        Returns:
+            dict: A dictionary containing coin metadata.
+        """
         endpoint = f"{_self.base_url}/coins/{_coin_id}"
         params = {
             "localization": "false",
@@ -160,6 +126,8 @@ class CoinGeckoApi:
             "market_data": "true",
             "community_data": "false"
         }
+
+        print("================= Fetching data from CoinGecko API - coin info =================")
 
         try:
             response = _self.session.get(endpoint, params=params, timeout=30)

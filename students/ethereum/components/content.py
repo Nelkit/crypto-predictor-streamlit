@@ -11,7 +11,7 @@ reload(news)
 reload(about)
 reload(historical_data)
 
-def render_view(coin_metadata: dict = None, ohlc_df: pd.DataFrame = None, daily_df: pd.DataFrame = None, news_df: pd.DataFrame = None):
+def render_view(coin_metadata: dict = None, ohlc_df: pd.DataFrame = None, news_df: pd.DataFrame = None):
     with st.container(horizontal_alignment="center"):
         view_options = {
             0: "Chart",
@@ -31,7 +31,7 @@ def render_view(coin_metadata: dict = None, ohlc_df: pd.DataFrame = None, daily_
         if selected_view == 0:
             chart.render_view(ohlc_df)
         elif selected_view == 1:
-            historical_data.render_view(daily_df)
+            historical_data.render_view(ohlc_df)
         elif selected_view == 2:
             news.render_view(news_df)
         elif selected_view == 3:

@@ -8,6 +8,8 @@ def render_view(latest_row: pd.Series, metadata: dict = None, forecast_data: dic
     coin_name = metadata.get("name", "Unknown")
     coin_symbol = metadata.get("symbol", "N/A").upper()
     current_price = metadata.get("current_price", 0)
+    market_cap = metadata.get("market_cap", 0)
+    volume = metadata.get("total_volume", 0)
     predicted_price = float(forecast_data.get("next_day_high_predicted", 0))
     predicted_date = forecast_data.get("next_day_high_date", "N/A")
 
@@ -45,8 +47,8 @@ def render_view(latest_row: pd.Series, metadata: dict = None, forecast_data: dic
         low_value = latest_row.get("low", 0.0) or 0.0
         open_value = latest_row.get("open", 0.0) or 0.0
         close_value = latest_row.get("close", 0.0) or 0.0
-        volume_value = latest_row.get("volume", 0.0) or 0.0
-        market_cap_value = latest_row.get("market_cap", 0.0) or 0.0
+        volume_value = volume
+        market_cap_value = market_cap
 
     stats = {
         "24h High": high_value,
