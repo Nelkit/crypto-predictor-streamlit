@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import streamlit as st
 import logging
-from students.ethereum.constants import COINGECKO_API_URL, CRYPTONEWS_API_URL, CRYPTONEWS_API_KEY, PREDICTOR_API_URL
+from students.ethereum.constants import COINGECKO_API_URL, COINGECKO_API_KEY, CRYPTONEWS_API_URL, CRYPTONEWS_API_KEY, PREDICTOR_API_URL
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -132,10 +132,13 @@ class CoinGeckoApi:
         logger.info(f"Fetching OHLC data for {_coin_id}, vs_currency {_vs_currency}, days {days}")
         endpoint = f"{_self.base_url}/coins/{_coin_id}/ohlc"
         params = {"vs_currency": _vs_currency, "days": days}
+        headers = {
+            "x-cg-demo-api-key": COINGECKO_API_KEY
+        }
         print("================= Fetching data from CoinGecko API - ohlc =================")
 
         try:
-            response = _self.session.get(endpoint, params=params, timeout=30)
+            response = _self.session.get(endpoint, params=params, headers=headers, timeout=30)
             response.raise_for_status()
             data = response.json()
 
@@ -191,11 +194,14 @@ class CoinGeckoApi:
             "market_data": "true",
             "community_data": "false"
         }
+        headers = {
+            "x-cg-demo-api-key": COINGECKO_API_KEY
+        }
 
         print("================= Fetching data from CoinGecko API - coin info =================")
 
         try:
-            response = _self.session.get(endpoint, params=params, timeout=30)
+            response = _self.session.get(endpoint, params=params, headers=headers, timeout=30)
             response.raise_for_status()
             data = response.json()
 
