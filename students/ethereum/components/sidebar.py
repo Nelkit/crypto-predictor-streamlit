@@ -30,10 +30,11 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
         if "refresh_prediction_request" not in st.session_state:
             st.session_state["refresh_prediction_request"] = 0.0
 
-        forecast_data = fetch_ethereum_forecast(
-            coin_id="ETH",
-            force_refresh_key=st.session_state["refresh_prediction_request"],
-        )
+        with st.spinner("Fetching latest forecast..."):
+            forecast_data = fetch_ethereum_forecast(
+                coin_id="ETH",
+                force_refresh_key=st.session_state["refresh_prediction_request"],
+            )
 
         predicted_price = float(forecast_data.get("next_day_high_predicted", 0))
         predicted_date = forecast_data.get("next_day_high_date", "N/A")
