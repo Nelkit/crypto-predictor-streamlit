@@ -36,33 +36,33 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
                 force_refresh_key=st.session_state["refresh_prediction_request"],
             )
 
-        predicted_price = float(forecast_data.get("next_day_high_predicted", 0))
-        predicted_date = forecast_data.get("next_day_high_date", "N/A")
+            predicted_price = float(forecast_data.get("next_day_high_predicted", 0))
+            predicted_date = forecast_data.get("next_day_high_date", "N/A")
 
-        request_failed = (
-            not forecast_data
-            or "error" in forecast_data
-            or predicted_price == 0
-        )
-
-        if request_failed:
-            st.error("Forecast unavailable. Retry below.")
-            refresh = st.button("🔄 Retry Forecast", use_container_width=True)
-            if refresh:
-                st.session_state["refresh_prediction_request"] = random()
-                st.toast("Fetching new forecast...", icon="⏳")
-                st.rerun()
-        else:
-            if current_price > 0:
-                predicted_change = ((predicted_price - current_price) / current_price) * 100
-            else:
-                predicted_change = 0.0
-
-            st.metric(
-                f"Forecasted High ({predicted_date})",
-                f"${predicted_price:,.2f}",
-                f"{predicted_change:+.2f}%",
+            request_failed = (
+                not forecast_data
+                or "error" in forecast_data
+                or predicted_price == 0
             )
+
+            if request_failed:
+                st.error("Forecast unavailable. Retry below.")
+                refresh = st.button("🔄 Retry Forecast", use_container_width=True)
+                if refresh:
+                    st.session_state["refresh_prediction_request"] = random()
+                    st.toast("Fetching new forecast...", icon="⏳")
+                    st.rerun()
+            else:
+                if current_price > 0:
+                    predicted_change = ((predicted_price - current_price) / current_price) * 100
+                else:
+                    predicted_change = 0.0
+
+                st.metric(
+                    f"Forecasted High ({predicted_date})",
+                    f"${predicted_price:,.2f}",
+                    f"{predicted_change:+.2f}%",
+                )
 
     st.metric("💰 Current Price (USD)", f"${current_price:,.2f}", border=True)
 
