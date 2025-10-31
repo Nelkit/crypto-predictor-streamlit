@@ -254,7 +254,7 @@ class CryptoNewsApi:
         Handles API errors gracefully and always returns a DataFrame.
         """
         logger.info(f"Fetching latest news for {coin_id}, lang {lang}, limit {limit}")
-        endpoint = f"{_self.base_url}/crypt"
+        endpoint = f"{_self.base_url}/crypto"
         params = {
             "apikey": CRYPTONEWS_API_KEY,
             "language": lang.lower(),
