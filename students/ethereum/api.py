@@ -15,7 +15,7 @@ class CryptoForecastApi:
         self.base_url = PREDICTOR_API_URL
 
     @st.cache_data(ttl=600)
-    def fetch_price_prediction(_self, _coin_id: str = "ETH") -> dict:
+    def fetch_price_prediction(_self, _coin_id: str = "ETH", force_refresh_key: float = 0) -> dict:
         """
         Fetch the next-day high price prediction for a specific cryptocurrency.
 
@@ -28,6 +28,7 @@ class CryptoForecastApi:
         """
         logger.info(f"Fetching price prediction for {_coin_id}")
         endpoint = f"{_self.base_url}/predict/{_coin_id}"
+        print("================= Fetching data from Prediction API =================")
 
         try:
             response = _self.session.get(endpoint, timeout=30)
@@ -41,7 +42,6 @@ class CryptoForecastApi:
             elif response.status_code == 400:
                 logger.warning(f"Invalid token for {_coin_id}")
                 st.error("🚫 Invalid token or unsupported cryptocurrency. Please use 'ETH'.")
-                st.cache_data.clear()
                 return {"error": "Invalid token"}
 
             elif response.status_code == 422:
@@ -49,7 +49,6 @@ class CryptoForecastApi:
                 st.warning("⚠️ Validation error — please check input parameters.")
                 if "detail" in data:
                     st.caption(f"Details: {data['detail']}")
-                st.cache_data.clear()
                 return {"error": "Validation error"}
 
             elif response.status_code == 500:
@@ -57,43 +56,39 @@ class CryptoForecastApi:
                 st.error("💥 Internal server error during model prediction. Please try again later.")
                 if "detail" in data:
                     st.caption(f"Details: {data['detail']}")
-                st.cache_data.clear()
                 return {"error": "Model error"}
 
             elif response.status_code == 503:
                 logger.warning(f"Service unavailable for {_coin_id}")
-                st.warning("🌐 Service unavailable — failed to fetch data from CoinGecko.")
-                st.cache_data.clear()
+                if "detail" in data:
+                    st.warning(f"🌐 {data['detail']}")
+                else:
+                    st.warning("🌐 Service unavailable — failed to fetch data from CoinGecko. Try again in 1 or 2 minutes.")
                 return {"error": "External API unavailable"}
 
             else:
                 logger.error(f"Unexpected status {response.status_code} for {_coin_id}")
                 st.error(f"❓ Unexpected response ({response.status_code}). Please try again later.")
-                st.cache_data.clear()
                 return {"error": f"Unexpected status {response.status_code}"}
 
         except requests.exceptions.Timeout:
             logger.error(f"Timeout fetching prediction for {_coin_id}")
             st.error("⏰ Request timed out. Please check your internet connection or try again later.")
-            st.cache_data.clear()
             return {"error": "Timeout"}
 
         except requests.exceptions.ConnectionError:
             logger.error(f"Connection error fetching prediction for {_coin_id}")
             st.error("🌐 Connection error — unable to reach the prediction server.")
-            st.cache_data.clear()
             return {"error": "Connection error"}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Network error fetching prediction for {_coin_id}: {e}")
             st.error(f"🚨 Network error: {e}")
-            st.cache_data.clear()
             return {"error": "Network error"}
 
         except Exception as e:
             logger.error(f"Unexpected error fetching price prediction for {_coin_id}: {e}")
             st.error(f"❌ Unexpected error fetching price prediction for {_coin_id}: {e}")
-            st.cache_data.clear()
             return {"error": "Unknown error"}
 
 class CoinGeckoApi:

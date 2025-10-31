@@ -16,7 +16,7 @@ def fetch_ethereum_related_news(limit) -> pd.DataFrame:
     news = api.fetch_latest_news(coin_id="ETH",limit=limit)
     return news
 
-def fetch_ethereum_forecast(coin_id: str = "ETH", days: int = 7) -> dict:
+def fetch_ethereum_forecast(coin_id: str = "ETH", force_refresh_key = 0) -> dict:
     api = CryptoForecastApi()
-    forecast_data = api.fetch_price_prediction(coin_id)
+    forecast_data = api.fetch_price_prediction(coin_id, force_refresh_key)
     return forecast_data

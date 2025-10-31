@@ -8,7 +8,7 @@ from students.ethereum.components import footer
 
 
 def render_view(ohlc_df: pd.DataFrame = None):
-    st.subheader("📈 Price Chart")
+    st.subheader("📈 Price")
 
     left_col, right_col = st.columns([1, 1], vertical_alignment="center")
 
@@ -21,7 +21,7 @@ def render_view(ohlc_df: pd.DataFrame = None):
             365: "1Y",
         }
         selected_period = st.pills(
-            "Select period",
+            "Time range",
             options=period_labels.keys(),
             format_func=lambda option: period_labels[option],
             selection_mode="single",
@@ -37,7 +37,7 @@ def render_view(ohlc_df: pd.DataFrame = None):
         default_value = st.session_state.get("selected_chart_type", chart_options[0])
 
         selected_chart_type = st.selectbox(
-            "Select Chart Type",
+            "Chart type",
             options=chart_options,
             index=chart_options.index(default_value),
         )
@@ -79,7 +79,7 @@ def render_area_chart(ohlc_data: pd.DataFrame):
     ))
 
     fig.update_layout(
-        title="Ethereum Price (Mountain Chart)",
+        title="Ethereum price (area)",
         xaxis_title="Time",
         yaxis_title="Price (USD)",
         template="plotly_dark",
@@ -124,7 +124,7 @@ def render_candlestick_chart(ohlc_data: pd.DataFrame):
     ))
 
     fig.update_layout(
-        title="Ethereum Price (Candlestick Chart)",
+        title="Ethereum price (candlestick)",
         xaxis_title="Time",
         yaxis_title="Price (USD)",
         template="plotly_dark",
@@ -165,7 +165,7 @@ def render_line_chart(ohlc_data: pd.DataFrame):
     ))
 
     fig.update_layout(
-        title="Ethereum Price (Line Chart)",
+        title="Ethereum price (line)",
         xaxis_title="Time",
         yaxis_title="Price (USD)",
         hovermode="x unified",

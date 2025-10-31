@@ -5,7 +5,7 @@ from students.ethereum.components import footer
 
 
 def render_view(ohlc_df: pd.DataFrame = None):
-    st.subheader("📊 Historical Data")
+    st.subheader("📊 History")
 
     if ohlc_df is None or ohlc_df.empty:
         st.warning("No historical data available.")
@@ -16,7 +16,7 @@ def render_view(ohlc_df: pd.DataFrame = None):
     with left_col:
         period_labels = {1: "1D", 7: "7D", 30: "1M", 90: "6M", 365: "1Y"}
         selected_period = st.pills(
-            "Select period",
+            "Time range",
             options=period_labels.keys(),
             format_func=lambda option: period_labels[option],
             selection_mode="single",
@@ -32,9 +32,9 @@ def render_view(ohlc_df: pd.DataFrame = None):
             st.download_button("⬇️ Download CSV", data=csv, file_name="ethereum_historical.csv", mime="text/csv")
 
     st.dataframe(ohlc_df, use_container_width=True)
-    st.caption(f"Showing {len(ohlc_df)} rows out of {len(ohlc_df)} total")
+    st.caption(f"Showing {len(ohlc_df)} rows.")
 
-    with st.expander("Show summary statistics"):
+    with st.expander("Summary statistics"):
         st.dataframe(ohlc_df.describe().T)
 
     st.divider()
