@@ -12,29 +12,30 @@ def render_view(coin_metadata: dict = None):
 	explorer_url = coin_metadata.get("blockchain_site")
 	category_list = coin_metadata.get("categories", [])
 	description_text = coin_metadata.get("description", "").replace("\r\n", "\n\n")
+	coin_name = coin_metadata.get("name", "Ethereum")
 
-	st.subheader("📊 Market Overview")
+	st.subheader("📊 Market overview")
 
 	col1, col2, col3 = st.columns(3)
 	with col1:
-		st.metric("Current Price (USD)", f"${price_usd:,.2f}")
+		st.metric("Current price", f"${price_usd:,.2f}")
 	with col2:
-		st.metric("Market Cap (USD)", f"${market_cap_usd:,.0f}")
+		st.metric("Market cap", f"${market_cap_usd:,.0f}")
 	with col3:
-		st.metric("Total Volume (USD)", f"${total_volume_usd:,.0f}")
+		st.metric("24h volume", f"${total_volume_usd:,.0f}")
 
 	st.divider()
-	st.subheader("🧠 About Ethereum")
+	st.subheader(f"🧠 {coin_name} overview")
 	st.markdown(description_text)
 
 	st.divider()
-	st.subheader("⚙️ Technical Details")
+	st.subheader("⚙️ Technical details")
 
-	st.markdown(f"**Hashing Algorithm:** {hash_algo}")
+	st.markdown(f"**Hashing algorithm:** {hash_algo}")
 	if homepage_url:
-		st.markdown(f"**Homepage:** [Visit site]({homepage_url})")
+		st.markdown(f"**Website:** [Visit site]({homepage_url})")
 	if explorer_url:
-		st.markdown(f"**Blockchain Explorer:** [View on Etherscan]({explorer_url})")
+		st.markdown(f"**Explorer:** [View on Etherscan]({explorer_url})")
 
 	st.divider()
 	st.subheader("🏷️ Categories")

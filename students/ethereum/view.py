@@ -4,8 +4,6 @@ import students.ethereum.components.content as content
 from students.ethereum.controller import (
     fetch_ethereum_ohlc,
     fetch_ethereum_info,
-    fetch_ethereum_related_news,
-    fetch_ethereum_forecast,
 )
 
 from importlib import reload
@@ -26,14 +24,8 @@ def render_tab():
     # Fetch coin metadata
     coin_metadata = fetch_ethereum_info()
 
-    # fetch latest news (not used in this view but could be integrated later)
-    news_df = fetch_ethereum_related_news(limit=10)
-
-    #fetch High next day price prediction data (not used in this view but could be integrated later)
-    forecast_data = fetch_ethereum_forecast(days=selected_days)
-
 
     with sidebar_col:
-        sidebar.render_view(latest_row, coin_metadata, forecast_data)
+        sidebar.render_view(latest_row, coin_metadata)
     with main_col:
-        content.render_view(coin_metadata, ohlc_df, news_df)
+        content.render_view(ohlc_df, coin_metadata)

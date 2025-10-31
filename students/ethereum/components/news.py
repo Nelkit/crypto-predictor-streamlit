@@ -1,16 +1,22 @@
 import streamlit as st
 import pandas as pd
 import students.ethereum.components.footer as footer
+from students.ethereum.controller import (
+    fetch_ethereum_related_news,
+)
 
-def render_view(news_df: pd.DataFrame=None):
+def render_view():
     """Render cryptocurrency news in a clean, modern Streamlit interface."""
 
-    st.subheader("📰 Latest News")
+    st.subheader("📰 News")
 
     st.divider()
 
+    # fetch latest news (not used in this view but could be integrated later)
+    news_df = fetch_ethereum_related_news(limit=10)
+
     if news_df is None or news_df.empty:
-        st.info("No news articles available at the moment.")
+        st.info("No news available right now.")
         return
 
     for _, row in news_df.iterrows():
