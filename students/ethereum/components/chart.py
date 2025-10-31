@@ -8,7 +8,7 @@ from students.ethereum.components import footer
 
 
 def render_view(ohlc_df: pd.DataFrame = None):
-    st.subheader("📈 Price")
+    st.subheader("📈 Ethereum to USD Chart")
 
     left_col, right_col = st.columns([1, 1], vertical_alignment="center")
 

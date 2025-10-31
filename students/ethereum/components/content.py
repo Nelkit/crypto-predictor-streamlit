@@ -14,7 +14,7 @@ reload(historical_data)
 def render_view(ohlc_df: pd.DataFrame = None, coin_metadata: dict = None):
     with st.container(horizontal_alignment="center"):
         view_options = {
-            0: "Price",
+            0: "Chart",
             1: "History",
             2: "News",
             3: "Overview",
