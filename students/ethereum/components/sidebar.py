@@ -25,7 +25,6 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
 
     # === Prediction Section ===
     with st.container(border=True):
-        st.write("📈 Next-Day High Forecast")
 
         if "refresh_prediction_request" not in st.session_state:
             st.session_state["refresh_prediction_request"] = 0.0
@@ -38,6 +37,7 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
 
             predicted_price = float(forecast_data.get("next_day_high_predicted", 0))
             predicted_date = forecast_data.get("next_day_high_date", "N/A")
+            model_name = forecast_data.get("model", "N/A")
 
             request_failed = (
                 not forecast_data
@@ -46,6 +46,8 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
             )
 
             if request_failed:
+                st.write(f"📈 Next-Day High Forecast")
+
                 st.error("Forecast unavailable. Retry below.")
                 refresh = st.button("🔄 Retry Forecast", use_container_width=True)
                 if refresh:
@@ -58,11 +60,18 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
                 else:
                     predicted_change = 0.0
 
-                st.metric(
-                    f"Forecasted High ({predicted_date})",
-                    f"${predicted_price:,.2f}",
-                    f"{predicted_change:+.2f}%",
+                st.markdown(
+                    f"<p style='margin-bottom:0rem; font-size:1.1rem;'>📈 Next-Day High Forecast ({predicted_date})</p>",
+                    unsafe_allow_html=True
                 )
+
+                st.metric(
+                    label="-",  # evita espacio extra
+                    value=f"${predicted_price:,.2f}",
+                    delta=f"{predicted_change:+.2f}%",
+                )
+
+                st.caption(f"Prediction powered by {model_name}.")
 
     st.metric("💰 Current Price (USD)", f"${current_price:,.2f}", border=True)
 
