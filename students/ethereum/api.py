@@ -14,7 +14,8 @@ class CryptoForecastApi:
         self.session = requests.Session()
         self.base_url = PREDICTOR_API_URL
 
-    @st.cache_data(ttl=600)
+    #@st.cache_data(ttl=600)
+    @st.cache_data
     def fetch_price_prediction(_self, _coin_id: str = "ETH", force_refresh_key: float = 0) -> dict:
         """
         Fetch the next-day high price prediction for a specific cryptocurrency.
@@ -116,7 +117,8 @@ class CoinGeckoApi:
             st.error(f"Unexpected network error while fetching {context} for {coin_id}.")
 
     # --- Fetch fetch ohlc metrics ---
-    @st.cache_data(ttl=300)
+    #@st.cache_data(ttl=300)
+    @st.cache_data
     def fetch_ohlc_data(_self, _coin_id: str, _vs_currency: str = "usd", days: int = 30) -> pd.DataFrame:
         """
         Fetch OHLC data directly from the CoinGecko /coins/{id}/ohlc endpoint.
@@ -133,7 +135,7 @@ class CoinGeckoApi:
         endpoint = f"{_self.base_url}/coins/{_coin_id}/ohlc"
         params = {"vs_currency": _vs_currency, "days": days}
         headers = {
-            "x-cg-demo-api-key": COINGECKO_API_KEY
+            #"x-cg-demo-api-key": COINGECKO_API_KEY
         }
         print("================= Fetching data from CoinGecko API - ohlc =================")
 
@@ -195,7 +197,7 @@ class CoinGeckoApi:
             "community_data": "false"
         }
         headers = {
-            "x-cg-demo-api-key": COINGECKO_API_KEY
+            #"x-cg-demo-api-key": COINGECKO_API_KEY
         }
 
         print("================= Fetching data from CoinGecko API - coin info =================")
@@ -247,7 +249,8 @@ class CryptoNewsApi:
         self.base_url = CRYPTONEWS_API_URL
         self.session = requests.Session()
 
-    @st.cache_data(ttl=3600)
+    #@st.cache_data(ttl=3600)
+    @st.cache_data
     def fetch_latest_news(_self, coin_id: str = "ETH", lang: str = "EN", limit: int = 10) -> pd.DataFrame:
         """
         Fetch the latest cryptocurrency news safely.
