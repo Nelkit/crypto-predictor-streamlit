@@ -145,9 +145,7 @@ def backtest_ma(df: pd.DataFrame) -> dict:
 # =========================
 # UI – Trading dashboard
 # =========================
-def render_tab():
-    # removed st.set_page_config to avoid conflicts when used as a Streamlit Page
-
+def render_view():
     # ---- CSS
     st.markdown("""
     <style>

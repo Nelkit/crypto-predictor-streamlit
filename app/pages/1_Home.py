@@ -1,16 +1,9 @@
+# 1_Home.py
 import sys
 import os
 import streamlit as st
 
-# --- Path setup ---
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-
-# --- PAGE CONFIG ---
-st.set_page_config(
-    page_title="Cryptocurrency Prediction Dashboard",
-    page_icon="📈",
-    layout="wide",
-)
 
 # --- HEADER ---
 st.title("📈 Cryptocurrency Prediction Dashboard")
@@ -90,9 +83,6 @@ st.markdown(
     2. On each cryptocurrency page, explore **historical data**, **forecast visualizations**, and **market indicators**.  
     3. Review next-day **price predictions** and recent **crypto news** to support data-driven analysis.  
     4. Compare model performances across algorithms and assess their predictive behavior.  
-
-    ---
-    **Tip:** All data is fetched dynamically from **FastAPI microservices** deployed on Render, ensuring real-time and reproducible analytics.
     """
 )
 

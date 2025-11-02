@@ -70,6 +70,48 @@ streamlit run app/main.py
 ```
 This will launch the Streamlit app in your default web browser.
 
+## 🧪 Testing
+To run the test suite for the Ethereum module:
+
+### Run all tests
+
+```bash
+poetry run pytest test_ethereum.py
+```
+
+### Run with verbosity
+
+```bash
+poetry run pytest test_ethereum.py -v
+```
+
+### Run with coverage
+
+```bash
+poetry run pytest test_ethereum.py --cov=students/ethereum --cov-report=html
+```
+
+### Run a specific test class
+
+```bash
+poetry run pytest test_ethereum.py::TestHelpers -v
+```
+
+## 🐳 Docker Deployment
+To run the app using Docker:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t crypto-dashboard .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 80:80 crypto-dashboard
+   ```
+
+The app will be available at http://localhost:80.
+
 ## 📂 Branching Strategy
 
 To keep our work organized, each student will create their own branch to work on their assigned cryptocurrency.

@@ -77,7 +77,7 @@ def fetch_prediction_with_retry(max_retries: int = 2):
     st.cache_data.clear()
     raise last_err
 
-def render_tab():
+def render_view():
     import streamlit as st
     import pandas as pd
     import numpy as np
