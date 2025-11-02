@@ -218,6 +218,7 @@ class CoinGeckoApi:
                 "current_price": data.get("market_data", {}).get("current_price", {}).get("usd"),
                 "market_cap": data.get("market_data", {}).get("market_cap", {}).get("usd"),
                 "total_volume": data.get("market_data", {}).get("total_volume", {}).get("usd"),
+                "last_updated": data.get("market_data", {}).get("last_updated", None),
             }
             logger.info(f"Successfully fetched coin info for {_coin_id}")
             return info

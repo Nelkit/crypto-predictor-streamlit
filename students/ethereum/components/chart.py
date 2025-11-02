@@ -1,62 +1,92 @@
-from operator import index
-
+# chart.py
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-
 from students.ethereum.components import footer
 
+def render_view(title:str="",ohlc_df: pd.DataFrame = None):
+    """
+    Renders the Ethereum price chart view with interactive controls.
 
-def render_view(ohlc_df: pd.DataFrame = None):
-    st.subheader("📈 Ethereum to USD Chart")
+    This function displays a container with a subheader, description, and controls
+    for selecting time range and chart type. It then renders the selected chart
+    based on the OHLC data provided.
 
-    left_col, right_col = st.columns([1, 1], vertical_alignment="center")
+    Args:
+        title (str, optional): The title to display as subheader. Defaults to "".
+        ohlc_df (pd.DataFrame, optional): DataFrame containing OHLC data with columns
+            like 'timestamp', 'open', 'high', 'low', 'close'. Defaults to None.
 
-    with left_col:
-        period_labels = {
-            1: "1D",
-            7: "7D",
-            30: "1M",
-            90: "6M",
-            365: "1Y",
-        }
-        selected_period = st.pills(
-            "Time range",
-            options=period_labels.keys(),
-            format_func=lambda option: period_labels[option],
-            selection_mode="single",
-            default=st.session_state.get("selected_period", 7)
-        )
+    Returns:
+        None: This function renders UI elements directly using Streamlit.
+    """
 
-        if st.session_state.get("selected_period") != selected_period:
-            st.session_state["selected_period"] = selected_period
-            st.rerun()
+    with st.container(border=True):
+        st.subheader(title)
+        selected_time = st.session_state.get("selected_period", 7)
+        st.write(f"Compare Ethereum’s recent price movements and {selected_time}-day(s) moving averages.")
 
-    with right_col:
-        chart_options = ["Line Chart", "Mountain Chart", "Candlestick Chart"]
-        default_value = st.session_state.get("selected_chart_type", chart_options[0])
+        left_col, right_col = st.columns([1, 1], vertical_alignment="center")
 
-        selected_chart_type = st.selectbox(
-            "Chart type",
-            options=chart_options,
-            index=chart_options.index(default_value),
-        )
+        with left_col:
+            period_labels = {
+                1: "1D",
+                7: "7D",
+                30: "1M",
+                90: "6M",
+                365: "1Y",
+            }
+            selected_period = st.pills(
+                "⏱️ Time Range",
+                options=period_labels.keys(),
+                format_func=lambda option: period_labels[option],
+                selection_mode="single",
+                default=st.session_state.get("selected_period", 7),
+                key="chart_period_selector",
+            )
 
-        if selected_chart_type != default_value:
-            st.session_state["selected_chart_type"] = selected_chart_type
-            st.rerun()
+            if st.session_state.get("selected_period") != selected_period:
+                st.session_state["selected_period"] = selected_period
+                st.rerun()
 
-    if selected_chart_type == "Mountain Chart":
-        render_area_chart(ohlc_df)
-    elif selected_chart_type == "Candlestick Chart":
-        render_candlestick_chart(ohlc_df)
-    elif selected_chart_type == "Line Chart":
-        render_line_chart(ohlc_df)
+        with right_col:
+            chart_options = ["Line Chart", "Mountain Chart", "Candlestick Chart"]
+            default_value = st.session_state.get("selected_chart_type", chart_options[0])
+
+            selected_chart_type = st.selectbox(
+                "📊 Chart type",
+                options=chart_options,
+                index=chart_options.index(default_value),
+            )
+
+            if selected_chart_type != default_value:
+                st.session_state["selected_chart_type"] = selected_chart_type
+                st.rerun()
+
+        if selected_chart_type == "Mountain Chart":
+            render_area_chart(ohlc_df)
+        elif selected_chart_type == "Candlestick Chart":
+            render_candlestick_chart(ohlc_df)
+        elif selected_chart_type == "Line Chart":
+            render_line_chart(ohlc_df)
 
     st.divider()
     footer.render_view("Price chart data provided by CoinGecko API (Public Free Tier).")
 
 def render_area_chart(ohlc_data: pd.DataFrame):
+    """
+    Renders an area chart for Ethereum price data.
+
+    This function creates a filled area chart showing the closing prices over time,
+    with color indicating price trend (green for increase, red for decrease).
+
+    Args:
+        ohlc_data (pd.DataFrame): DataFrame with OHLC data, must include 'timestamp'
+            and 'close' columns.
+
+    Returns:
+        None: Displays the chart using Streamlit.
+    """
     if ohlc_data is None or ohlc_data.empty:
         st.warning("No data available to display the chart.")
         return
@@ -90,6 +120,20 @@ def render_area_chart(ohlc_data: pd.DataFrame):
     st.plotly_chart(fig, use_container_width=True)
 
 def render_candlestick_chart(ohlc_data: pd.DataFrame):
+    """
+    Renders a candlestick chart for Ethereum OHLC data.
+
+    This function creates a candlestick chart displaying open, high, low, and close
+    prices, with a trend line based on a 3-day rolling mean of closing prices.
+    Colors indicate bullish (green) or bearish (red) trends.
+
+    Args:
+        ohlc_data (pd.DataFrame): DataFrame with OHLC data, must include 'timestamp',
+            'open', 'high', 'low', 'close' columns.
+
+    Returns:
+        None: Displays the chart using Streamlit.
+    """
     if ohlc_data is None or ohlc_data.empty:
         st.warning("No data available to display the chart.")
         return
@@ -137,6 +181,20 @@ def render_candlestick_chart(ohlc_data: pd.DataFrame):
     st.plotly_chart(fig, use_container_width=True)
 
 def render_line_chart(ohlc_data: pd.DataFrame):
+    """
+    Renders a line chart for Ethereum price data with moving average.
+
+    This function creates a line chart showing closing prices over time, with markers,
+    and overlays a 7-day moving average line. Colors indicate price trend
+    (green for increase, red for decrease).
+
+    Args:
+        ohlc_data (pd.DataFrame): DataFrame with OHLC data, must include 'timestamp'
+            and 'close' columns.
+
+    Returns:
+        None: Displays the chart using Streamlit.
+    """
     if ohlc_data is None or ohlc_data.empty:
         st.warning("No data available to display the chart.")
         return

@@ -8,7 +8,7 @@ btc_page = st.Page("pages/3_Bitcoin.py", title="Bitcoin")
 sol_page = st.Page("pages/4_Solana.py", title="Solana")
 xrp_page = st.Page("pages/5_XRP.py", title="XRP")
 
-# Create navigation with hidden position to allow custom sidebar
+# Build navigation with hidden position
 pg = st.navigation([home_page, eth_page, btc_page, sol_page, xrp_page], position="hidden")
 
 # Set page config
@@ -18,7 +18,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Apply custom CSS styles
+# Custom CSS styles
 st.markdown(
     """
     <style>
@@ -34,7 +34,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Build custom sidebar navigation
+# Custom sidebar content
 st.sidebar.image("app/images/crypto-currency-logo.png", width="stretch")
 st.sidebar.markdown("""
     <div width="100%" style="text-align: center;"> 
@@ -44,7 +44,7 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-# Define page links with images
+# Page links
 pages = [
     ("app/images/home-page.png", home_page, "Home"),
     ("app/images/ethereum-eth-logo.png", eth_page, "Ethereum"),

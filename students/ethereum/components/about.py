@@ -1,9 +1,22 @@
 import streamlit as st
-
 from students.ethereum.components import footer
 
+def render_view(title:str="Market overview", coin_metadata: dict = None):
+	"""
+	Renders the about view for Ethereum.
 
-def render_view(coin_metadata: dict = None):
+	This function displays market performance metrics (current price, market cap, volume),
+	an overview description, technical details (hashing algorithm, links), and categories.
+	Includes a footer with data source attribution.
+
+	Args:
+		title (str, optional): The title parameter (not used in rendering). Defaults to "Market overview".
+		coin_metadata (dict, optional): Dictionary with coin data such as price, market cap,
+			volume, hashing algorithm, homepage, explorer, categories, description. Defaults to None.
+
+	Returns:
+		None: This function renders UI elements directly using Streamlit.
+	"""
 	price_usd = coin_metadata.get("current_price", 0)
 	market_cap_usd = coin_metadata.get("market_cap", 0)
 	total_volume_usd = coin_metadata.get("total_volume", 0)
@@ -14,22 +27,22 @@ def render_view(coin_metadata: dict = None):
 	description_text = coin_metadata.get("description", "").replace("\r\n", "\n\n")
 	coin_name = coin_metadata.get("name", "Ethereum")
 
-	st.subheader("📊 Market overview")
+	st.subheader("🏦 Market Performance - 24h Metrics")
 
 	col1, col2, col3 = st.columns(3)
 	with col1:
-		st.metric("Current price", f"${price_usd:,.2f}")
+		st.metric("Current Price", f"${price_usd:,.2f}")
 	with col2:
-		st.metric("Market cap", f"${market_cap_usd:,.0f}")
+		st.metric("Market Cap", f"${market_cap_usd:,.0f}")
 	with col3:
-		st.metric("24h volume", f"${total_volume_usd:,.0f}")
+		st.metric("24h Volume", f"${total_volume_usd:,.0f}")
 
 	st.divider()
-	st.subheader(f"🧠 {coin_name} overview")
+	st.subheader(f"🧠 {coin_name} Overview")
 	st.markdown(description_text)
 
 	st.divider()
-	st.subheader("⚙️ Technical details")
+	st.subheader("⚙️ Technical Details")
 
 	st.markdown(f"**Hashing algorithm:** {hash_algo}")
 	if homepage_url:
@@ -38,7 +51,7 @@ def render_view(coin_metadata: dict = None):
 		st.markdown(f"**Explorer:** [View on Etherscan]({explorer_url})")
 
 	st.divider()
-	st.subheader("🏷️ Categories")
+	st.subheader("🏷️ Ecosystem & Categories")
 
 	if category_list:
 		st.write(", ".join(category_list))
