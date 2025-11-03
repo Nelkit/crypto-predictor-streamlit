@@ -63,6 +63,40 @@ The goal is to provide an interactive dashboard that integrates data visualizati
     poetry env activate
     ```
 
+### Troubleshooting: Virtual Environment Activation
+
+If you encounter issues activating the virtual environment (especially with VS Code or Windows), try these alternatives:
+
+#### Alternative Activation Methods:
+
+**Linux/macOS:**
+```bash
+source .venv/bin/activate
+```
+
+**Windows (PowerShell):**
+```bash
+.venv\Scripts\Activate.ps1
+```
+
+**Windows (Command Prompt):**
+```bash
+.venv\Scripts\activate.bat
+```
+
+**Or activate using Poetry shell:**
+```bash
+poetry shell
+```
+
+#### IDE-Specific Notes:
+
+- **VS Code**: Sometimes VS Code may have issues detecting the Poetry virtual environment. If `poetry env activate` doesn't work, try using the direct activation method (`source .venv/bin/activate` on Linux/macOS or `.venv\Scripts\Activate.ps1` on Windows). VS Code should automatically detect the virtual environment if it's already activated.
+
+- **PyCharm**: PyCharm usually integrates better with Poetry environments. If `poetry env activate` works in PyCharm but not in VS Code, it's likely a VS Code configuration issue rather than a Poetry problem.
+
+**Note**: `poetry env activate` should work in most cases, but if it doesn't, the direct activation methods above are reliable alternatives.
+
 ## 🚀 How to Run the Program
 Run the following command in your terminal:
 ```bash

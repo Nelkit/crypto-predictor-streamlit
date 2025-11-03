@@ -40,19 +40,16 @@ from students.ethereum.constants import (
 )
 
 
-# Fixtures para limpiar el caché de Streamlit entre tests
 @pytest.fixture(autouse=True)
 def clear_streamlit_cache():
-    """Limpiar el caché de Streamlit antes de cada test"""
+    """Clear the Streamlit cache before each test"""
     if hasattr(st, 'cache_data'):
-        # Limpiar todos los caches de Streamlit
         try:
             if hasattr(st.cache_data, 'clear'):
                 st.cache_data.clear()
         except:
             pass
     yield
-    # Limpiar después del test también
     try:
         if hasattr(st.cache_data, 'clear'):
             st.cache_data.clear()
@@ -62,7 +59,7 @@ def clear_streamlit_cache():
 
 @pytest.fixture(autouse=True)
 def mock_streamlit_cache():
-    """Mockear el caché de Streamlit para evitar problemas de persistencia"""
+    """Mock the Streamlit cache to avoid persistence issues"""
     with patch('students.ethereum.api.st.cache_data', lambda func: func):
         yield
 

@@ -27,7 +27,7 @@ def render_view(title:str="Market overview", coin_metadata: dict = None):
 	description_text = coin_metadata.get("description", "").replace("\r\n", "\n\n")
 	coin_name = coin_metadata.get("name", "Ethereum")
 
-	st.subheader("🏦 Market Performance - 24h Metrics")
+	st.subheader("🏦 Market Overview")
 
 	col1, col2, col3 = st.columns(3)
 	with col1:
