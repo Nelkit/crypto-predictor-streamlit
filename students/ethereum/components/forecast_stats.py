@@ -85,7 +85,16 @@ def render_view(latest_row: pd.Series, metadata: dict = None):
 
                     st.caption(f"Prediction powered by {model_name}.")
 
-        st.metric(f"💰 Current Price (USD) | {formatted_last_updated}", f"${current_price:,.2f}", border=True)
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                    <div>
+                        <p style='margin:0; font-size:1rem; color:var(--text-color);'>💰 Current Price (USD) | {formatted_last_updated}</p>
+                        <p style='margin:0; font-weight:regular; font-size:2rem; color:var(--text-color);'>${current_price:,.2f}</p>
+                    </div>
+                """, 
+                unsafe_allow_html=True
+            )
 
     # === OHCL Market Performance Section ===
     with ohlc_col:
