@@ -11,6 +11,15 @@ Each student in the group contributes a separate tab showing their selected data
 
 The goal is to provide an interactive dashboard that integrates data visualization and machine learning predictions, ready for deployment.
 
+### 👥 Team Contributions
+
+Each team member is responsible for developing and implementing a cryptocurrency module:
+
+- **Ethereum (ETH)** – Model by *Nelkit Isael Chavez* *(LSTM Neural Network)* – Developed by *Nelkit Isael Chavez*  
+- **Bitcoin (BTC)** – Model by *Juan David Rodríguez* *(LightGBM)* – Developed by *Juan David Rodríguez*  
+- **Solana (SOL)** – Model by *Mario Rubiano* *(Gradient Boosting)* – Developed by *Mario Rubiano*  
+- **XRP (XRP)** – Model by *Brayam Pineda* *(Random Forest)* – Developed by *Brayam Pineda*
+
 --------
 
 ## 🗂 Repository Structure
@@ -19,13 +28,42 @@ The goal is to provide an interactive dashboard that integrates data visualizati
 36120-25SP-group6-AT3-streamlit/
 │
 ├── app/
-│   └── main.py              # Main Streamlit application code
+│   ├── main.py              # Main Streamlit application code
+│   ├── images/              # Cryptocurrency logos and images
+│   │   ├── bitcoin-btc-logo.png
+│   │   ├── ethereum-eth-logo.png
+│   │   ├── solana-sol-logo.png
+│   │   ├── xrp-xrp-logo.png
+│   │   ├── crypto-currency-logo.png
+│   │   └── home-page.png
+│   └── pages/               # Streamlit page components
+│       ├── 1_Home.py        # Home page
+│       ├── 2_Ethereum.py    # Ethereum page
+│       ├── 3_Bitcoin.py     # Bitcoin page
+│       ├── 4_Solana.py      # Solana page
+│       └── 5_XRP.py         # XRP page
 │
 ├── students/
-│   ├── student1.py          # Streamlit components and logic for Student 1
-│   ├── student2.py          # Streamlit components and logic for Student 2
-│   ├── student3.py          # Streamlit components and logic for Student 3
-│   └── student4.py          # Streamlit components and logic for Student 4
+│   ├── bitcoin/             # Bitcoin module
+│   │   └── view.py          # Bitcoin view components
+│   ├── ethereum/            # Ethereum module (complete implementation)
+│   │   ├── api.py           # API wrapper classes (CoinGecko, CryptoNews, Forecast)
+│   │   ├── controller.py    # Controller functions for data fetching
+│   │   ├── constants.py     # Constants and API URLs
+│   │   ├── view.py          # Ethereum view components
+│   │   ├── components/      # UI components
+│   │   │   ├── about.py            # About section component
+│   │   │   ├── chart.py            # Chart visualization component
+│   │   │   ├── footer.py           # Footer component
+│   │   │   ├── forecast_stats.py   # Forecast statistics component
+│   │   │   ├── historical_data.py  # Historical data component
+│   │   │   └── news.py             # News component
+│   │   └── utils/          # Utility functions
+│   │       └── helpers.py  # Helper functions (formatting, date handling)
+│   ├── solana/              # Solana module
+│   │   └── view.py          # Solana view components
+│   └── xrp/                 # XRP module
+│       └── view.py          # XRP view components
 │
 ├── pyproject.toml           # Python project configuration and dependencies
 ├── requirements.txt         # List of Python packages to install
