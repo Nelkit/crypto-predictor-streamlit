@@ -11,16 +11,17 @@ Each student in the group contributes a separate tab showing their selected data
 
 The goal is to provide an interactive dashboard that integrates data visualization and machine learning predictions, ready for deployment.
 
-### 👥 Team Contributions
-
-Each team member is responsible for developing and implementing a cryptocurrency module:
-
-- **Ethereum (ETH)** – Model by *Nelkit Isael Chavez* *(LSTM Neural Network)* – Developed by *Nelkit Isael Chavez*  
-- **Bitcoin (BTC)** – Model by *Juan David Rodríguez* *(LightGBM)* – Developed by *Juan David Rodríguez*  
-- **Solana (SOL)** – Model by *Mario Rubiano* *(Gradient Boosting)* – Developed by *Mario Rubiano*  
-- **XRP (XRP)** – Model by *Brayam Pineda* *(Random Forest)* – Developed by *Brayam Pineda*
-
 --------
+
+## 📑 Table of Contents
+- [Repository Structure](#-repository-structure)
+- [Team Contributions](#-team-contributions)
+- [How to Setup](#-how-to-setup)
+- [How to Run the Program](#-how-to-run-the-program)
+- [Docker Deployment](#-docker-deployment)
+- [Testing](#-testing)
+- [Branching Strategy](#-branching-strategy)
+- [License](#-license)
 
 ## 🗂 Repository Structure
 
@@ -70,6 +71,15 @@ Each team member is responsible for developing and implementing a cryptocurrency
 ├── Dockerfile               # Docker instructions to build and run the Streamlit app
 └── github.txt               # Link to the Github repository for the app
 ```
+
+## 👥 Team Contributions
+
+Each team member is responsible for developing and implementing a cryptocurrency module:
+
+- **Ethereum (ETH)** – Model by *Nelkit Isael Chavez* *(LSTM Neural Network)* – Developed by *Nelkit Isael Chavez*  
+- **Bitcoin (BTC)** – Model by *Juan David Rodríguez* *(LightGBM)* – Developed by *Juan David Rodríguez*  
+- **Solana (SOL)** – Model by *Mario Rubiano* *(Gradient Boosting)* – Developed by *Mario Rubiano*  
+- **XRP (XRP)** – Model by *Brayam Pineda* *(Random Forest)* – Developed by *Brayam Pineda*
 
 ## 🧑‍💻 How to Setup
 1. Clone this repository to your local machine:
@@ -142,6 +152,21 @@ streamlit run app/main.py
 ```
 This will launch the Streamlit app in your default web browser.
 
+## 🐳 Docker Deployment
+To run the app using Docker:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t crypto-dashboard .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 80:80 crypto-dashboard
+   ```
+
+The app will be available at http://localhost:80.
+
 ## 🧪 Testing
 To run the test suite for the Ethereum module:
 
@@ -169,20 +194,6 @@ poetry run pytest test_ethereum.py --cov=students/ethereum --cov-report=html
 poetry run pytest test_ethereum.py::TestHelpers -v
 ```
 
-## 🐳 Docker Deployment
-To run the app using Docker:
-
-1. Build the Docker image:
-   ```bash
-   docker build -t crypto-dashboard .
-   ```
-
-2. Run the container:
-   ```bash
-   docker run -p 80:80 crypto-dashboard
-   ```
-
-The app will be available at http://localhost:80.
 
 ## 📂 Branching Strategy
 
@@ -208,9 +219,12 @@ To keep our work organized, each student will create their own branch to work on
     git pull origin main
     git checkout -b nelkit-ethereum
     ```
-2. Work on your assigned section (students/student_<student_id>.py).
+2. Work on your assigned section (students/<token>/view.py).
 3. Commit changes frequently with clear messages.
 4. Push your branch and open a Pull Request (PR) to main.
 5. Team member reviews and approves the PR before merging.
 
 > Tip: Keep your branch up to date with main before merging to avoid conflicts.
+
+## 📃 License
+This project is licensed under the MIT License.
