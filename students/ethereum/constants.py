@@ -1,5 +1,5 @@
 ETH_LOGO = "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png"
 COINGECKO_API_URL = "https://api.coingecko.com/api/v3"
 CRYPTONEWS_API_URL = "https://newsdata.io/api/1"
-PREDICTOR_API_URL = "https://crypto-forecast-api.onrender.com"
+PREDICTOR_API_URL = "https://crypto-api.nelkit.dev"
 CRYPTONEWS_API_KEY = "pub_5c3e1ffc8343484f8603a46b814378de"
