@@ -2,15 +2,37 @@ import requests
 import pandas as pd
 import streamlit as st
 import logging
-from students.ethereum.constants import COINGECKO_API_URL, CRYPTONEWS_API_URL, CRYPTONEWS_API_KEY, PREDICTOR_API_URL
+from students.ethereum.constants import COINGECKO_API_URL, COINGECKO_API_KEY, CRYPTONEWS_API_URL, CRYPTONEWS_API_KEY, PREDICTOR_API_URL
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class CryptoForecastApi:
-    """Wrapper class for fetching cryptocurrency price predictions from the FastAPI service."""
+    """
+    Wrapper class for fetching cryptocurrency price predictions from the ML prediction API.
+    
+    This class provides methods to interact with the FastAPI prediction service that uses
+    machine learning models to predict next-day high prices for cryptocurrencies.
+    
+    Attributes:
+        session (requests.Session): HTTP session for making API requests.
+        base_url (str): Base URL of the prediction API service.
+    
+    Example:
+        ```python
+        api = CryptoForecastApi()
+        prediction = api.fetch_price_prediction("ETH")
+        if "error" not in prediction:
+            print(f"Predicted price: ${prediction['next_day_high_predicted']}")
+        ```
+    """
 
     def __init__(self):
+        """
+        Initialize the CryptoForecastApi instance.
+        
+        Creates a new requests Session and sets the base URL from constants.
+        """
         self.session = requests.Session()
         self.base_url = PREDICTOR_API_URL
 
@@ -19,16 +41,54 @@ class CryptoForecastApi:
         """
         Fetch the next-day high price prediction for a specific cryptocurrency.
 
+        This method calls the ML prediction API to get a forecast of the next day's
+        high price for the specified cryptocurrency. Results are cached for 10 minutes
+        to reduce API calls.
+
+        Args:
+            _coin_id (str): The cryptocurrency symbol/ID. Defaults to "ETH".
+                           Currently supported: "ETH" (Ethereum).
+            force_refresh_key (float): A key to force refresh the cached data.
+                                      Changing this value will bypass the cache.
+                                      Defaults to 0.
+
+        Returns:
+            dict: A dictionary containing prediction data or error information.
+                  On success (200), returns a dict with keys:
+                  - next_day_high_predicted (float): Predicted high price
+                  - next_day_high_date (str): Date of the prediction
+                  - model (str): Name of the ML model used
+                  On error, returns a dict with:
+                  - error (str): Error type/message
+
         Handles all possible FastAPI response codes:
-        - 200: Success → returns prediction dictionary
-        - 400: Invalid token
-        - 422: Validation error
-        - 500: Internal server/model error
-        - 503: API unavailable (CoinGecko fetch failed)
+            - 200: Success → returns prediction dictionary
+            - 400: Invalid token → returns {"error": "Invalid token"}
+            - 422: Validation error → returns {"error": "Validation error"}
+            - 500: Internal server/model error → returns {"error": "Model error"}
+            - 503: API unavailable (CoinGecko fetch failed) → returns {"error": "External API unavailable"}
+
+        Raises:
+            Does not raise exceptions; all errors are caught and returned as error dicts.
+
+        Example:
+            ```python
+            api = CryptoForecastApi()
+            # Normal usage
+            result = api.fetch_price_prediction("ETH")
+            
+            # Force refresh cache
+            result = api.fetch_price_prediction("ETH", force_refresh_key=1.0)
+            
+            # Check for errors
+            if "error" in result:
+                print(f"Error: {result['error']}")
+            else:
+                print(f"Prediction: ${result['next_day_high_predicted']}")
+            ```
         """
         logger.info(f"Fetching price prediction for {_coin_id}")
         endpoint = f"{_self.base_url}/predict/{_coin_id}"
-        print("================= Fetching data from Prediction API =================")
 
         try:
             response = _self.session.get(endpoint, timeout=30)
@@ -92,15 +152,64 @@ class CryptoForecastApi:
             return {"error": "Unknown error"}
 
 class CoinGeckoApi:
-    """Wrapper class for fetching cryptocurrency data from the CoinGecko API."""
+    """
+    Wrapper class for fetching cryptocurrency data from the CoinGecko API.
+    
+    This class provides methods to interact with the CoinGecko API to fetch:
+    - OHLC (Open, High, Low, Close) price data
+    - Detailed coin information and metadata
+    
+    Attributes:
+        session (requests.Session): HTTP session for making API requests.
+        base_url (str): Base URL of the CoinGecko API.
+    
+    Example:
+        ```python
+        api = CoinGeckoApi()
+        # Fetch OHLC data
+        ohlc = api.fetch_ohlc_data("ethereum", days=7)
+        # Fetch coin info
+        info = api.fetch_coin_info("ethereum")
+        ```
+    """
 
     def __init__(self):
+        """
+        Initialize the CoinGeckoApi instance.
+        
+        Creates a new requests Session and sets the base URL from constants.
+        """
         self.session = requests.Session()
         self.base_url = COINGECKO_API_URL
 
     @staticmethod
     def handle_api_error(response, coin_id, context):
-        """Handle common API errors with user-friendly messages."""
+        """
+        Handle common CoinGecko API errors with user-friendly Streamlit messages.
+        
+        This static method processes HTTP errors from the CoinGecko API and displays
+        appropriate error messages to the user via Streamlit.
+        
+        Args:
+            response (requests.Response | None): The HTTP response object that caused
+                                                the error, or None if no response available.
+            coin_id (str): The cryptocurrency ID that was being queried.
+            context (str): A description of what operation was being performed
+                         (e.g., "OHLC data", "coin info").
+        
+        Note:
+            This method displays warnings/errors directly using Streamlit's st.warning()
+            and st.error() functions. It also logs errors using the module logger.
+        
+        Example:
+            ```python
+            try:
+                response = session.get(url)
+                response.raise_for_status()
+            except requests.exceptions.HTTPError:
+                CoinGeckoApi.handle_api_error(response, "ethereum", "OHLC data")
+            ```
+        """
         if response is not None and hasattr(response, "status_code"):
             if response.status_code == 429:
                 logger.warning(f"Rate limit reached for {context} of {coin_id}")
@@ -115,27 +224,63 @@ class CoinGeckoApi:
             logger.error(f"Unexpected network error for {context} of {coin_id}")
             st.error(f"Unexpected network error while fetching {context} for {coin_id}.")
 
-    # --- Fetch fetch ohlc metrics ---
-    @st.cache_data(ttl=300)
+    @st.cache_data
     def fetch_ohlc_data(_self, _coin_id: str, _vs_currency: str = "usd", days: int = 30) -> pd.DataFrame:
         """
-        Fetch OHLC data directly from the CoinGecko /coins/{id}/ohlc endpoint.
+        Fetch OHLC (Open, High, Low, Close) data from the CoinGecko API.
+
+        Retrieves historical price data for a cryptocurrency in OHLC format.
+        Results are cached using Streamlit's cache to optimize API calls.
 
         Args:
-            _coin_id (str): CoinGecko ID (e.g., 'bitcoin', 'ethereum', 'solana', 'ripple')
-            _vs_currency (str): The target currency to compare against (default: 'usd')
-            days (int): Number of past days to fetch (valid options: 1, 7, 14, 30, 90, 180, 365, 'max')
+            _coin_id (str): CoinGecko ID of the cryptocurrency.
+                          Examples: 'bitcoin', 'ethereum', 'solana', 'ripple'.
+            _vs_currency (str): The target currency to compare against.
+                              Defaults to 'usd'. Other options include 'eur', 'gbp', etc.
+            days (int): Number of past days to fetch. Valid options are:
+                      1, 7, 14, 30, 90, 180, 365, or 'max' for maximum available.
+                      Defaults to 30.
 
         Returns:
-            pd.DataFrame: A DataFrame containing timestamp, open, high, low, and close columns.
+            pd.DataFrame: A DataFrame containing OHLC data with columns:
+                - timestamp (datetime): Date and time of the data point
+                - open (float): Opening price
+                - high (float): Highest price of the period
+                - low (float): Lowest price of the period
+                - close (float): Closing price
+                
+                Returns an empty DataFrame if:
+                - No data is available
+                - API request fails
+                - Network error occurs
+
+        Raises:
+            Does not raise exceptions; all errors are caught and handled.
+            Returns empty DataFrame on error.
+
+        Note:
+            Data is sorted chronologically by timestamp in ascending order.
+
+        Example:
+            ```python
+            api = CoinGeckoApi()
+            # Fetch 7 days of OHLC data
+            df = api.fetch_ohlc_data("ethereum", days=7)
+            
+            if not df.empty:
+                print(f"Latest close price: ${df.iloc[-1]['close']}")
+                print(f"Highest price: ${df['high'].max()}")
+            ```
         """
         logger.info(f"Fetching OHLC data for {_coin_id}, vs_currency {_vs_currency}, days {days}")
         endpoint = f"{_self.base_url}/coins/{_coin_id}/ohlc"
         params = {"vs_currency": _vs_currency, "days": days}
-        print("================= Fetching data from CoinGecko API - ohlc =================")
+        headers = {
+            "x-cg-demo-api-key": COINGECKO_API_KEY
+        }
 
         try:
-            response = _self.session.get(endpoint, params=params, timeout=30)
+            response = _self.session.get(endpoint, params=params, headers=headers, timeout=30)
             response.raise_for_status()
             data = response.json()
 
@@ -172,16 +317,52 @@ class CoinGeckoApi:
             return pd.DataFrame()
 
 
-    # --- Fetch coin info ---
     @st.cache_data
     def fetch_coin_info(_self, _coin_id: str) -> dict:
         """
-        Fetch detailed coin information from the CoinGecko /coins/{id} endpoint.
+        Fetch detailed coin information and metadata from the CoinGecko API.
+
+        Retrieves comprehensive information about a cryptocurrency including
+        current market data, description, links, and technical details.
+        Results are cached using Streamlit's cache to optimize API calls.
+
         Args:
-            _coin_id (str): CoinGecko ID (e.g., 'bitcoin', '
-        ethereum', 'solana', 'ripple')
+            _coin_id (str): CoinGecko ID of the cryptocurrency.
+                          Examples: 'bitcoin', 'ethereum', 'solana', 'ripple'.
+
         Returns:
-            dict: A dictionary containing coin metadata.
+            dict: A dictionary containing coin metadata with the following keys:
+                - name (str): Full name of the cryptocurrency
+                - symbol (str): Ticker symbol (e.g., 'eth')
+                - hashing_algorithm (str): Algorithm used (e.g., 'Ethash')
+                - categories (list): List of categories the coin belongs to
+                - description (str): English description of the cryptocurrency
+                - homepage (str): Official website URL
+                - blockchain_site (str): Blockchain explorer URL
+                - current_price (float): Current price in USD
+                - market_cap (float): Market capitalization in USD
+                - total_volume (float): 24h trading volume in USD
+                - last_updated (str): ISO timestamp of last data update
+                
+                Returns an empty dictionary ({}) if:
+                - API request fails
+                - Network error occurs
+                - Invalid coin_id provided
+
+        Raises:
+            Does not raise exceptions; all errors are caught and handled.
+            Returns empty dict on error.
+
+        Example:
+            ```python
+            api = CoinGeckoApi()
+            info = api.fetch_coin_info("ethereum")
+            
+            if info:
+                print(f"Name: {info['name']}")
+                print(f"Current Price: ${info['current_price']}")
+                print(f"Market Cap: ${info['market_cap']:,}")
+            ```
         """
         logger.info(f"Fetching coin info for {_coin_id}")
         endpoint = f"{_self.base_url}/coins/{_coin_id}"
@@ -191,11 +372,12 @@ class CoinGeckoApi:
             "market_data": "true",
             "community_data": "false"
         }
-
-        print("================= Fetching data from CoinGecko API - coin info =================")
+        headers = {
+            "x-cg-demo-api-key": COINGECKO_API_KEY
+        }
 
         try:
-            response = _self.session.get(endpoint, params=params, timeout=30)
+            response = _self.session.get(endpoint, params=params, headers=headers, timeout=30)
             response.raise_for_status()
             data = response.json()
 
@@ -210,6 +392,7 @@ class CoinGeckoApi:
                 "current_price": data.get("market_data", {}).get("current_price", {}).get("usd"),
                 "market_cap": data.get("market_data", {}).get("market_cap", {}).get("usd"),
                 "total_volume": data.get("market_data", {}).get("total_volume", {}).get("usd"),
+                "last_updated": data.get("market_data", {}).get("last_updated", None),
             }
             logger.info(f"Successfully fetched coin info for {_coin_id}")
             return info
@@ -235,20 +418,89 @@ class CoinGeckoApi:
             return {}
 
 class CryptoNewsApi:
-    """Wrapper class for fetching cryptocurrency news data."""
+    """
+    Wrapper class for fetching cryptocurrency news data from the CryptoNews API.
+    
+    This class provides methods to retrieve the latest news articles related to
+    specific cryptocurrencies. News data is cached for 1 hour to reduce API calls.
+    
+    Attributes:
+        base_url (str): Base URL of the CryptoNews API.
+        session (requests.Session): HTTP session for making API requests.
+    
+    Example:
+        ```python
+        api = CryptoNewsApi()
+        news = api.fetch_latest_news("ETH", limit=10)
+        for article in news.itertuples():
+            print(f"{article.title}: {article.url}")
+        ```
+    """
 
     def __init__(self):
+        """
+        Initialize the CryptoNewsApi instance.
+        
+        Creates a new requests Session and sets the base URL from constants.
+        """
         self.base_url = CRYPTONEWS_API_URL
         self.session = requests.Session()
 
     @st.cache_data(ttl=3600)
     def fetch_latest_news(_self, coin_id: str = "ETH", lang: str = "EN", limit: int = 10) -> pd.DataFrame:
         """
-        Fetch the latest cryptocurrency news safely.
-        Handles API errors gracefully and always returns a DataFrame.
+        Fetch the latest cryptocurrency news articles safely.
+
+        Retrieves news articles related to the specified cryptocurrency from the
+        CryptoNews API. Results are cached for 1 hour to optimize API calls.
+        Handles API errors gracefully and always returns a DataFrame (empty on error).
+
+        Args:
+            coin_id (str): The cryptocurrency symbol/ID to search for in article titles.
+                         Defaults to "ETH" (Ethereum). Examples: "BTC", "ETH", "SOL".
+            lang (str): Language code for articles. Defaults to "EN" (English).
+                       Other options: "ES", "FR", "DE", etc.
+            limit (int): Maximum number of news articles to fetch. Defaults to 10.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing news articles with columns:
+                - id (str): Unique article identifier
+                - source (str): News source name
+                - title (str): Article title
+                - body (str): Article description/body text
+                - url (str): Link to the full article
+                - published_on (datetime): Publication date and time
+                - tags (str/list): Article keywords/tags
+                
+                Returns an empty DataFrame if:
+                - No articles are found
+                - API request fails
+                - Network error occurs
+                - Invalid API response format
+
+        Raises:
+            Does not raise exceptions; all errors are caught and handled.
+            Returns empty DataFrame on error.
+
+        Note:
+            Articles are sorted by publication date in descending order (newest first).
+            Datetime parsing errors are handled gracefully using pandas' errors='coerce'.
+
+        Example:
+            ```python
+            api = CryptoNewsApi()
+            # Fetch latest Ethereum news
+            news = api.fetch_latest_news("ETH", limit=5)
+            
+            if not news.empty:
+                for idx, row in news.iterrows():
+                    print(f"{row['title']} - {row['url']}")
+            else:
+                print("No news articles found")
+            ```
         """
         logger.info(f"Fetching latest news for {coin_id}, lang {lang}, limit {limit}")
-        endpoint = f"{_self.base_url}/crypt"
+        endpoint = f"{_self.base_url}/crypto"
         params = {
             "apikey": CRYPTONEWS_API_KEY,
             "language": lang.lower(),

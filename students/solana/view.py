@@ -5,7 +5,6 @@ import numpy as np
 import requests
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from datetime import datetime
 import time
 
 # =========================
@@ -146,13 +145,11 @@ def backtest_ma(df: pd.DataFrame) -> dict:
 # =========================
 # UI – Trading dashboard
 # =========================
-def render_tab():
-    st.set_page_config(page_title="SOL Trading Dashboard", layout="wide")
-
+def render_view():
     # ---- CSS
     st.markdown("""
     <style>
-    .card {border-radius:14px; padding:14px 16px; border:1px solid rgba(125,125,125,.22);}
+    .card {border-radius:14px; padding:14px 16px; border:1px solid rgba(125,125,125,.22);} 
     .metric-lg{font-size:32px;font-weight:700;line-height:1.1;margin-top:4px}
     .subtle{opacity:.7;font-size:12px}
     .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid rgba(125,125,125,.25)}
@@ -313,9 +310,10 @@ def render_tab():
                 delta_pct = (predicted / live_price - 1.0) * 100.0
                 # Muestra el valor y el delta vs live, incluyendo el live en el texto
                 st.metric(
-                    label="",
+                    label="Live price",
                     value=_format_usd(predicted),
                     delta=f"{delta_usd:+,.2f} ({delta_pct:+.2f}%)  vs live {_format_usd(live_price)}",
+                    label_visibility="hidden"
                 )
             else:
                 st.markdown(f"<div class='metric-lg'>{_format_usd(predicted)}</div>", unsafe_allow_html=True)

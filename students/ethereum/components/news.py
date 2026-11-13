@@ -1,18 +1,29 @@
 import streamlit as st
-import pandas as pd
 import students.ethereum.components.footer as footer
 from students.ethereum.controller import (
     fetch_ethereum_related_news,
 )
+from students.ethereum.utils.helpers import format_datetime
 
-def render_view():
-    """Render cryptocurrency news in a clean, modern Streamlit interface."""
+def render_view(title: str = "📰 Market News"):
+    """
+    Renders the news view for Ethereum.
 
-    st.subheader("📰 News")
+    This function displays a subheader, fetches Ethereum-related news, and renders
+    each news article in a card-style layout with title, source, publication date,
+    and a truncated body. Includes a footer with data source attribution.
 
+    Args:
+        title (str, optional): The title to display as subheader. Defaults to "📰 Market News".
+
+    Returns:
+        None: This function renders UI elements directly using Streamlit.
+    """
+
+    st.subheader(title)
     st.divider()
 
-    # fetch latest news (not used in this view but could be integrated later)
+    # Fetch Ethereum-related news
     news_df = fetch_ethereum_related_news(limit=10)
 
     if news_df is None or news_df.empty:
@@ -20,22 +31,16 @@ def render_view():
         return
 
     for _, row in news_df.iterrows():
-        # Safely extract fields
         title = row.get("title") or "Untitled"
         url = row.get("url") or "#"
         source = row.get("source") or "Unknown"
         body = row.get("body") or "..."
         published_on = row.get("published_on")
 
-        # Format date
-        if isinstance(published_on, (int, float)):
-            published_str = pd.to_datetime(published_on, unit="s").strftime("%b %d, %Y %H:%M")
-        elif isinstance(published_on, pd.Timestamp):
-            published_str = published_on.strftime("%b %d, %Y %H:%M")
-        else:
-            published_str = "Unknown date"
+        # Format publication date
+        published_str = format_datetime(published_on)
 
-        # === Card style ===
+        # Render news card
         st.markdown(
             f"""
             <div style="

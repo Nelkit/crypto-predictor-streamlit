@@ -77,7 +77,7 @@ def fetch_prediction_with_retry(max_retries: int = 2):
     st.cache_data.clear()
     raise last_err
 
-def render_tab():
+def render_view():
     import streamlit as st
     import pandas as pd
     import numpy as np
@@ -118,7 +118,7 @@ def render_tab():
     st.markdown(
         """
         <hr style="border: none; border-top: 2px solid #ccc; margin-top: 0.5em; margin-bottom: 0.5em;">
-        <h2 style='text-align:center; color:#333333;'>Bitcoin Analysis</h2>
+        <h2 style='text-align:center; color:var(--text-color)'>Bitcoin Analysis</h2>
         <hr style="border: none; border-top: 2px solid #ccc; margin-top: 0.5em; margin-bottom: 1em;">
         """,
         unsafe_allow_html=True

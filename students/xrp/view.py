@@ -67,7 +67,7 @@ def fetch_xrp_historical(months: int = 3):
     except Exception as e:
         raise Exception(f"Historical API Error: {str(e)}")
 
-def render_tab():
+def render_view():
     # Professional Header with XRP branding
     st.markdown("""
         <div style='background: linear-gradient(135deg, #23292F 0%, #3C4449 100%); 

@@ -13,25 +13,73 @@ The goal is to provide an interactive dashboard that integrates data visualizati
 
 --------
 
+## 📑 Table of Contents
+- [Repository Structure](#-repository-structure)
+- [Team Contributions](#-team-contributions)
+- [How to Setup](#-how-to-setup)
+- [How to Run the Program](#-how-to-run-the-program)
+- [Docker Deployment](#-docker-deployment)
+- [Testing](#-testing)
+- [Branching Strategy](#-branching-strategy)
+- [License](#-license)
+
 ## 🗂 Repository Structure
 
 ```
 36120-25SP-group6-AT3-streamlit/
 │
 ├── app/
-│   └── main.py              # Main Streamlit application code
+│   ├── main.py              # Main Streamlit application code
+│   ├── images/              # Cryptocurrency logos and images
+│   │   ├── bitcoin-btc-logo.png
+│   │   ├── ethereum-eth-logo.png
+│   │   ├── solana-sol-logo.png
+│   │   ├── xrp-xrp-logo.png
+│   │   ├── crypto-currency-logo.png
+│   │   └── home-page.png
+│   └── pages/               # Streamlit page components
+│       ├── 1_Home.py        # Home page
+│       ├── 2_Ethereum.py    # Ethereum page
+│       ├── 3_Bitcoin.py     # Bitcoin page
+│       ├── 4_Solana.py      # Solana page
+│       └── 5_XRP.py         # XRP page
 │
 ├── students/
-│   ├── student1.py          # Streamlit components and logic for Student 1
-│   ├── student2.py          # Streamlit components and logic for Student 2
-│   ├── student3.py          # Streamlit components and logic for Student 3
-│   └── student4.py          # Streamlit components and logic for Student 4
+│   ├── bitcoin/             # Bitcoin module
+│   │   └── view.py          # Bitcoin view components
+│   ├── ethereum/            # Ethereum module (complete implementation)
+│   │   ├── api.py           # API wrapper classes (CoinGecko, CryptoNews, Forecast)
+│   │   ├── controller.py    # Controller functions for data fetching
+│   │   ├── constants.py     # Constants and API URLs
+│   │   ├── view.py          # Ethereum view components
+│   │   ├── components/      # UI components
+│   │   │   ├── about.py            # About section component
+│   │   │   ├── chart.py            # Chart visualization component
+│   │   │   ├── footer.py           # Footer component
+│   │   │   ├── forecast_stats.py   # Forecast statistics component
+│   │   │   ├── historical_data.py  # Historical data component
+│   │   │   └── news.py             # News component
+│   │   └── utils/          # Utility functions
+│   │       └── helpers.py  # Helper functions (formatting, date handling)
+│   ├── solana/              # Solana module
+│   │   └── view.py          # Solana view components
+│   └── xrp/                 # XRP module
+│       └── view.py          # XRP view components
 │
 ├── pyproject.toml           # Python project configuration and dependencies
 ├── requirements.txt         # List of Python packages to install
 ├── Dockerfile               # Docker instructions to build and run the Streamlit app
 └── github.txt               # Link to the Github repository for the app
 ```
+
+## 👥 Team Contributions
+
+Each team member is responsible for developing and implementing a cryptocurrency module:
+
+- **Ethereum (ETH)** – Model by *Nelkit Isael Chavez* *(LSTM Neural Network)* – Developed by *Nelkit Isael Chavez*  
+- **Bitcoin (BTC)** – Model by *Juan David Rodríguez* *(LightGBM)* – Developed by *Juan David Rodríguez*  
+- **Solana (SOL)** – Model by *Mario Rubiano* *(Gradient Boosting)* – Developed by *Mario Rubiano*  
+- **XRP (XRP)** – Model by *Brayam Pineda* *(Random Forest)* – Developed by *Brayam Pineda*
 
 ## 🧑‍💻 How to Setup
 1. Clone this repository to your local machine:
@@ -66,9 +114,52 @@ The goal is to provide an interactive dashboard that integrates data visualizati
 ## 🚀 How to Run the Program
 Run the following command in your terminal:
 ```bash
-streamlit run app/main.py
+poetry run streamlit run app/main.py
 ```
 This will launch the Streamlit app in your default web browser.
+
+## 🐳 Docker Deployment
+To run the app using Docker:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t crypto-dashboard .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 80:80 crypto-dashboard
+   ```
+
+The app will be available at http://localhost:80.
+
+## 🧪 Testing
+To run the test suite for the Ethereum module:
+
+### Run all tests
+
+```bash
+poetry run pytest test_ethereum.py
+```
+
+### Run with verbosity
+
+```bash
+poetry run pytest test_ethereum.py -v
+```
+
+### Run with coverage
+
+```bash
+poetry run pytest test_ethereum.py --cov=students/ethereum --cov-report=html
+```
+
+### Run a specific test class
+
+```bash
+poetry run pytest test_ethereum.py::TestHelpers -v
+```
+
 
 ## 📂 Branching Strategy
 
@@ -94,9 +185,12 @@ To keep our work organized, each student will create their own branch to work on
     git pull origin main
     git checkout -b nelkit-ethereum
     ```
-2. Work on your assigned section (students/student_<student_id>.py).
+2. Work on your assigned section (students/<token>/view.py).
 3. Commit changes frequently with clear messages.
 4. Push your branch and open a Pull Request (PR) to main.
 5. Team member reviews and approves the PR before merging.
 
 > Tip: Keep your branch up to date with main before merging to avoid conflicts.
+
+## 📃 License
+This project is licensed under the MIT License.
